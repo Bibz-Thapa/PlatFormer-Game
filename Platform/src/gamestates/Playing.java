@@ -3,6 +3,7 @@ package gamestates;
 import entities.Player;
 import levels.LevelManager;
 import main.Game;
+import ui.PausedOverlay;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -11,6 +12,9 @@ import java.awt.event.MouseEvent;
 public class Playing extends State implements Statemethods{
     private Player player;
     private LevelManager levelManager;
+    private PausedOverlay pausedOverlay;
+    private boolean paused = false;
+
 
     public Playing(Game game) {
         super(game);
@@ -19,14 +23,12 @@ public class Playing extends State implements Statemethods{
 
     private void initClasses() {
         levelManager = new LevelManager(game);
-
         player = new Player(200, 200,(int)(64*Game.SCALE),(int)(40*Game.SCALE));
         player.loadlvlData(levelManager.getCurrentLevel().getLvlData());
+        pausedOverlay = new PausedOverlay(this);
     }
 
-    public void windowFocusLost() {
-        player.resetDirBooleans();
-    }
+
 
 
     @Override
@@ -34,12 +36,15 @@ public class Playing extends State implements Statemethods{
         levelManager.update();
         player.update();
 
+        pausedOverlay.update();
+
     }
 
     @Override
     public void draw(Graphics g) {
         levelManager.draw(g);
         player.render(g);
+        pausedOverlay.draw(g);
 
     }
 
@@ -52,16 +57,22 @@ public class Playing extends State implements Statemethods{
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (paused)
+            pausedOverlay.mousePressed(e);
 
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        if (paused)
+            pausedOverlay.mouseReleased(e);
 
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        if (paused)
+            pausedOverlay.mouseMoved(e);
 
     }
 
@@ -96,6 +107,14 @@ public class Playing extends State implements Statemethods{
                 player.setJump(false);
                 break;
         }
+    }
+
+    public void unpauseGame(){
+        paused = false;
+    }
+
+    public void windowFocusLost() {
+        player.resetDirBooleans();
     }
 
     public Player getPlayer() {
